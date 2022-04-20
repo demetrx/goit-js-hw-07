@@ -1,4 +1,4 @@
-import { galleryItems } from './gallery-items.js';
+import galleryItems from './gallery-items.js';
 
 const refGallery = document.querySelector('.gallery');
 createGallery(galleryItems, refGallery);
@@ -13,5 +13,6 @@ function createGallery(list, place) {
         </a>`
     )
     .join('');
+
   place.innerHTML = markup;
 }

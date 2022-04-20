@@ -1,32 +1,35 @@
-import { galleryItems } from './gallery-items.js';
+import galleryItems from './gallery-items.js';
 
 const refGallery = document.querySelector('.gallery');
-refGallery.addEventListener('click', onPictureClick);
 createGallery(galleryItems, refGallery);
 
+let instance = null;
+
+refGallery.addEventListener('click', onPictureClick);
+
 function onPictureClick(e) {
+  e.preventDefault();
+
   if (e.target.nodeName !== 'IMG') {
     return;
   }
-  const instance = basicLightbox.create(
-    `<img src="${e.target.dataset.source}" width="800" height="600">`
-  );
+
+  instance = createInstance(e.target.dataset.source);
   instance.show();
-  window.addEventListener('keydown', e => (e.code === 'Escape' ? instance.close() : e));
 }
 
 function createGallery(list, place) {
   const markup = list
     .map(
-      e =>
+      ({ preview, original, description }) =>
         `<div class="gallery__item">
-            <a class="gallery__link" href="${e.original}">
+            <a class="gallery__link" href="${original}" >
                 <img
                 class="gallery__image"
-                src="${e.preview}"
-                data-source="${e.original}"
-                alt="${e.description}"
-                onclick='event.preventDefault()'
+                src="${preview}"
+                data-source="${original}"
+                alt="${description}"
+                )
                 />
             </a>
         </div>`
@@ -34,4 +37,17 @@ function createGallery(list, place) {
     .join('');
 
   place.innerHTML = markup;
+}
+
+function onEscClose(e) {
+  if (e.code === 'Escape') {
+    instance.close();
+  }
+}
+
+function createInstance(source) {
+  return basicLightbox.create(`<img src="${source}" width="800" height="600">`, {
+    onShow: () => window.addEventListener('keydown', onEscClose),
+    onClose: () => window.removeEventListener('keydown', onEscClose),
+  });
 }
